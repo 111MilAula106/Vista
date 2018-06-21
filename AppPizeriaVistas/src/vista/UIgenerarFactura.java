@@ -2,19 +2,30 @@ package vista;
 
 import java.awt.Color;
 import java.awt.Font;
+import javax.swing.JOptionPane;
 import javax.swing.table.JTableHeader;
+import modelo.GestorPizzeria;
+import modelo.Pedido;
 
 public class UIgenerarFactura extends javax.swing.JFrame {
+    private GestorPizzeria current;
+    private boolean puedoCancelar = false;
+    private String numero;
+    private boolean puedoConfirmar=false;    
+    
     
     public UIgenerarFactura() {
         initComponents();
+        
+        current = GestorPizzeria.instanciaActual;
+        mostrarTablaClientes();        
         
         //DISEÑO TABLAS
         JTableHeader encabezado = tabla_clientes.getTableHeader();
         encabezado.setForeground(new Color(193,39,45));
         encabezado.setBackground(Color.white);
         encabezado.setFont(new Font("Antonio", Font.BOLD, 15));        
-        JTableHeader encabezado2 = tabla_pedidos.getTableHeader();
+        JTableHeader encabezado2 = tablaDetalle.getTableHeader();
         encabezado2.setForeground(new Color(193,39,45));
         encabezado2.setBackground(Color.white);
         encabezado2.setFont(new Font("Antonio", Font.BOLD, 15));
@@ -36,7 +47,7 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         tfmontototal = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tabla_pedidos = new javax.swing.JTable();
+        tablaDetalle = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabla_clientes = new javax.swing.JTable();
@@ -72,6 +83,11 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         btncancelar.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_cancelar_on.png"))); // NOI18N
         btncancelar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_cancelar_on.png"))); // NOI18N
         btncancelar.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_cancelar_on.png"))); // NOI18N
+        btncancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btncancelarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btncancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 520, -1, -1));
 
         btnconfirmar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_confirmar_off.png"))); // NOI18N
@@ -82,6 +98,11 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         btnconfirmar.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_confirmar_on.png"))); // NOI18N
         btnconfirmar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_confirmar_on.png"))); // NOI18N
         btnconfirmar.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_confirmar_on.png"))); // NOI18N
+        btnconfirmar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnconfirmarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnconfirmar, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 520, -1, -1));
 
         tfmontototal.setFont(new java.awt.Font("ChunkFive Roman", 0, 26)); // NOI18N
@@ -96,9 +117,9 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         jLabel6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 470, -1, -1));
 
-        tabla_pedidos.setFont(new java.awt.Font("Antonio", 0, 13)); // NOI18N
-        tabla_pedidos.setForeground(new java.awt.Color(102, 102, 102));
-        tabla_pedidos.setModel(new javax.swing.table.DefaultTableModel(
+        tablaDetalle.setFont(new java.awt.Font("Antonio", 0, 13)); // NOI18N
+        tablaDetalle.setForeground(new java.awt.Color(102, 102, 102));
+        tablaDetalle.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -109,12 +130,12 @@ public class UIgenerarFactura extends javax.swing.JFrame {
                 "VARIEDAD", "TIPO", "TAMAÑO", "CANTIDAD", "PRECIO", "SUBTOTAL"
             }
         ));
-        tabla_pedidos.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        tabla_pedidos.setGridColor(new java.awt.Color(102, 102, 102));
-        tabla_pedidos.setRowHeight(20);
-        tabla_pedidos.setSelectionBackground(new java.awt.Color(255, 201, 19));
-        tabla_pedidos.setSelectionForeground(new java.awt.Color(0, 0, 0));
-        jScrollPane2.setViewportView(tabla_pedidos);
+        tablaDetalle.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tablaDetalle.setGridColor(new java.awt.Color(102, 102, 102));
+        tablaDetalle.setRowHeight(20);
+        tablaDetalle.setSelectionBackground(new java.awt.Color(255, 201, 19));
+        tablaDetalle.setSelectionForeground(new java.awt.Color(0, 0, 0));
+        jScrollPane2.setViewportView(tablaDetalle);
 
         getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(43, 345, 690, 110));
 
@@ -143,6 +164,11 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         tabla_clientes.setRowHeight(20);
         tabla_clientes.setSelectionBackground(new java.awt.Color(255, 201, 19));
         tabla_clientes.setSelectionForeground(new java.awt.Color(0, 0, 0));
+        tabla_clientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabla_clientesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabla_clientes);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(43, 180, 380, 110));
@@ -194,41 +220,74 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btncerrarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(UIgenerarFactura.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(UIgenerarFactura.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(UIgenerarFactura.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(UIgenerarFactura.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new UIgenerarFactura().setVisible(true);
-//            }
-//        });
-//    }
+    private void tabla_clientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_clientesMouseClicked
+       puedoCancelar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
+        if(puedoCancelar){
+            int a = tabla_clientes.getSelectedRow();
+            numero=tabla_clientes.getValueAt(a, 0).toString();
+            mostrarTablaDetalles(current.getArrayPedidos().get(a)); 
+        }
+    }//GEN-LAST:event_tabla_clientesMouseClicked
 
+    private void btncancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncancelarActionPerformed
+        puedoCancelar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
+        if (puedoCancelar) {
+            for (int i=0; i<(current.getArrayPedidos()).size(); i++){            
+                if(numero.equalsIgnoreCase(tabla_clientes.getValueAt(i, 0).toString())){
+                    (current.getArrayPedidos()).remove(i);
+                    break;
+                }
+            }
+            mostrarTablaClientes();
+        }
+        else JOptionPane.showMessageDialog(null, "No puede eliminar.", "ERROR", JOptionPane.ERROR_MESSAGE);
+    }//GEN-LAST:event_btncancelarActionPerformed
+
+    private void btnconfirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconfirmarActionPerformed
+        puedoConfirmar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
+        if(puedoConfirmar){
+            System.out.println("si puedo confirmar");
+            
+        }
+        else System.out.println("no puedo confirmar");
+    }//GEN-LAST:event_btnconfirmarActionPerformed
+
+    public void mostrarTablaClientes() {
+        String unaMatriz[][] = new String[current.getArrayPedidos().size()][4];
+        for (int i = 0; i < current.getArrayPedidos().size(); i++) {
+            unaMatriz[i][0] = "#" + current.getArrayPedidos().get(i).getNumeroPedido();
+            unaMatriz[i][1] = current.getArrayPedidos().get(i).getFechaEntrega();
+            unaMatriz[i][2] = current.getArrayPedidos().get(i).getFechaCreacion();
+            unaMatriz[i][3] = current.getArrayPedidos().get(i).getNombreCliente();
+        }
+        tabla_clientes.setModel(new javax.swing.table.DefaultTableModel(
+            unaMatriz,            
+            new String [] {
+                "NÚMERO", "HORA", "FECHA", "CLIENTE"
+            }                
+        ));
+    }
+    
+    public void mostrarTablaDetalles(Pedido unPedido) { 
+        String unaMatriz[][] = new String[unPedido.getDetallePedido().size()][6];
+        for (int i = 0; i < unPedido.getDetallePedido().size(); i++) {
+            unaMatriz[i][0] = unPedido.getDetallePedido().get(i).getVariedad();
+            unaMatriz[i][1] = unPedido.getDetallePedido().get(i).getTipo();
+            unaMatriz[i][2] = unPedido.getDetallePedido().get(i).getTamanio();
+            //unaMatriz[i][3] = String.valueOf(unPedido.getDetallePedido().size());
+            unaMatriz[i][3] = "cantidad";
+            //unaMatriz[i][4] = String.valueOf(unPedido.getDetallePedido().get(i).getPrecioUnitario());
+            unaMatriz[i][4] = "precio unitario";
+            unaMatriz[i][5] = "Subtotal";            
+        }
+        tablaDetalle.setModel(new javax.swing.table.DefaultTableModel(
+            unaMatriz,            
+            new String [] {
+                "VARIEDAD", "TIPO", "TAMAÑO", "CANTIDAD", "PRECIO", "SUBTOTAL"
+            }                
+        ));
+    }    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btncancelar;
     private javax.swing.JButton btncerrar;
@@ -244,8 +303,8 @@ public class UIgenerarFactura extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JTable tablaDetalle;
     private javax.swing.JTable tabla_clientes;
-    private javax.swing.JTable tabla_pedidos;
     private javax.swing.JTextField tfmontototal;
     // End of variables declaration//GEN-END:variables
 }
