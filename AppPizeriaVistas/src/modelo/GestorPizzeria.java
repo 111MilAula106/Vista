@@ -19,7 +19,15 @@ public class GestorPizzeria {
         misPedidos.add(unPedido);
     }
     
+    public void addFactura(Factura unaFactura){
+        misFacturas.add(unaFactura);
+    }
+    
     public List<Pedido> getArrayPedidos(){
         return misPedidos;
+    }
+    
+    public List<Factura> getArrayFacturas(){
+        return misFacturas;
     }
 }

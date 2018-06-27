@@ -1,23 +1,25 @@
 package modelo;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Factura {
     
-    private String fechaFactura;
+    private Date fechaHora;
+    private SimpleDateFormat fechaFactura;
     private int numeroFactura;
+    private static int numeroFacturaSig=100;
     private boolean estadoFactura;
-
-    public Factura(String fechaFactura, int numeroFactura, boolean estadoFactura) {
-        this.fechaFactura = fechaFactura;
-        this.numeroFactura = numeroFactura;
-        this.estadoFactura = estadoFactura;
+    private Pedido unPedido;
+    
+    public Factura(){
+        this.numeroFactura = numeroFacturaSig++;
+        this.fechaHora=new Date();
     }
-
+    
     public String getFechaFactura() {
-        return fechaFactura;
-    }
-
-    public void setFechaFactura(String fechaFactura) {
-        this.fechaFactura = fechaFactura;
+        fechaFactura=new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
+        return fechaFactura.format(fechaHora);
     }
 
     public int getNumeroFactura() {
@@ -35,4 +37,18 @@ public class Factura {
     public void setEstadoFactura(boolean estadoFactura) {
         this.estadoFactura = estadoFactura;
     }
+
+    public Pedido getUnPedido() {
+        return unPedido;
+    }
+
+    public void setUnPedido(Pedido unPedido) {
+        this.unPedido = unPedido;
+    }
+
+    public static int getNumeroFacturaSig() {
+        return numeroFacturaSig;
+    }
+    
+    
 }

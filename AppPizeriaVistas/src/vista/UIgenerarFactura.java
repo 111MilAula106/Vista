@@ -2,6 +2,7 @@ package vista;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import javax.swing.table.JTableHeader;
 import modelo.GestorPizzeria;
@@ -9,6 +10,7 @@ import modelo.Pedido;
 
 public class UIgenerarFactura extends javax.swing.JFrame {
     private GestorPizzeria current;
+    private Pedido unPedido;
     private boolean puedoCancelar = false;
     private String numero;
     private boolean puedoConfirmar=false;    
@@ -18,7 +20,7 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         initComponents();
         
         current = GestorPizzeria.instanciaActual;
-        mostrarTablaClientes();        
+        this.unPedido=unPedido; 
         
         //DISEÑO TABLAS
         JTableHeader encabezado = tabla_clientes.getTableHeader();
@@ -60,6 +62,13 @@ public class UIgenerarFactura extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+            }
+        });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnnuevopedido.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_nuevo_pedido_on.png"))); // NOI18N
@@ -169,6 +178,11 @@ public class UIgenerarFactura extends javax.swing.JFrame {
                 tabla_clientesMouseClicked(evt);
             }
         });
+        tabla_clientes.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tabla_clientesKeyReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabla_clientes);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(43, 180, 380, 110));
@@ -215,50 +229,58 @@ public class UIgenerarFactura extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    //CERRAR
     private void btncerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncerrarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btncerrarActionPerformed
-
+    //EVENTO: CLICK SOBRE TABLA CLIENTES
     private void tabla_clientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_clientesMouseClicked
-       puedoCancelar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
-        if(puedoCancelar){
-            int a = tabla_clientes.getSelectedRow();
-            numero=tabla_clientes.getValueAt(a, 0).toString();
-            mostrarTablaDetalles(current.getArrayPedidos().get(a)); 
-        }
+        navegacionTabla();
     }//GEN-LAST:event_tabla_clientesMouseClicked
-
+    //CANCELAR
     private void btncancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncancelarActionPerformed
         puedoCancelar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
-        if (puedoCancelar) {
-            for (int i=0; i<(current.getArrayPedidos()).size(); i++){            
-                if(numero.equalsIgnoreCase(tabla_clientes.getValueAt(i, 0).toString())){
-                    (current.getArrayPedidos()).remove(i);
-                    break;
+        int opc = JOptionPane.showConfirmDialog(null, "¿Está seguro?");
+        if (puedoCancelar){
+            if(JOptionPane.OK_OPTION==opc){
+                for (int i=0; i<(current.getArrayPedidos()).size(); i++){            
+                    if(numero.equalsIgnoreCase(tabla_clientes.getValueAt(i, 0).toString())){
+                        (current.getArrayPedidos()).remove(i);
+                        break;
+                    }
                 }
-            }
-            mostrarTablaClientes();
+                mostrarTablaClientes();
+            }              
         }
-        else JOptionPane.showMessageDialog(null, "No puede eliminar.", "ERROR", JOptionPane.ERROR_MESSAGE);
+        else JOptionPane.showMessageDialog(null, "No puede eliminar.", "ERROR", JOptionPane.ERROR_MESSAGE);        
     }//GEN-LAST:event_btncancelarActionPerformed
-
+    //CONFIRMAR
     private void btnconfirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconfirmarActionPerformed
         puedoConfirmar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
         if(puedoConfirmar){
-            System.out.println("si puedo confirmar");
-            
+            UIfacturaGenerada frameFacturaGenerada = new UIfacturaGenerada(current, unPedido);
+            frameFacturaGenerada.setVisible(true);
         }
-        else System.out.println("no puedo confirmar");
+        else JOptionPane.showMessageDialog(null, "No hay pedidos registrados o no ha seleccionado uno.", "ERROR", JOptionPane.ERROR_MESSAGE); 
     }//GEN-LAST:event_btnconfirmarActionPerformed
+    //FOCUS EN FRAME GENERAR FACTURA
+    private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+        mostrarTablaClientes();
+    }//GEN-LAST:event_formWindowGainedFocus
+    //NAVEGACION TABLA POR TECLADO
+    private void tabla_clientesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tabla_clientesKeyReleased
+        if((evt.getKeyCode()==KeyEvent.VK_DOWN) || (evt.getKeyCode()==KeyEvent.VK_UP)){
+            navegacionTabla();
+        }
+    }//GEN-LAST:event_tabla_clientesKeyReleased
 
     public void mostrarTablaClientes() {
-        String unaMatriz[][] = new String[current.getArrayPedidos().size()][4];
+        String unaMatriz[][] = new String[current.getArrayPedidos().size()][4];        
         for (int i = 0; i < current.getArrayPedidos().size(); i++) {
-            unaMatriz[i][0] = "#" + current.getArrayPedidos().get(i).getNumeroPedido();
-            unaMatriz[i][1] = current.getArrayPedidos().get(i).getFechaEntrega();
-            unaMatriz[i][2] = current.getArrayPedidos().get(i).getFechaCreacion();
-            unaMatriz[i][3] = current.getArrayPedidos().get(i).getNombreCliente();
+                unaMatriz[i][0] = String.valueOf(current.getArrayPedidos().get(i).getNumeroPedido());
+                unaMatriz[i][1] = current.getArrayPedidos().get(i).getFechaEntrega();
+                unaMatriz[i][2] = current.getArrayPedidos().get(i).getFechaCreacion();
+                unaMatriz[i][3] = current.getArrayPedidos().get(i).getNombreCliente();
         }
         tabla_clientes.setModel(new javax.swing.table.DefaultTableModel(
             unaMatriz,            
@@ -269,16 +291,16 @@ public class UIgenerarFactura extends javax.swing.JFrame {
     }
     
     public void mostrarTablaDetalles(Pedido unPedido) { 
+        int montoTotal=0;
         String unaMatriz[][] = new String[unPedido.getDetallePedido().size()][6];
         for (int i = 0; i < unPedido.getDetallePedido().size(); i++) {
             unaMatriz[i][0] = unPedido.getDetallePedido().get(i).getVariedad();
             unaMatriz[i][1] = unPedido.getDetallePedido().get(i).getTipo();
             unaMatriz[i][2] = unPedido.getDetallePedido().get(i).getTamanio();
-            //unaMatriz[i][3] = String.valueOf(unPedido.getDetallePedido().size());
-            unaMatriz[i][3] = "cantidad";
-            //unaMatriz[i][4] = String.valueOf(unPedido.getDetallePedido().get(i).getPrecioUnitario());
-            unaMatriz[i][4] = "precio unitario";
-            unaMatriz[i][5] = "Subtotal";            
+            unaMatriz[i][3] = unPedido.getDetallePedido().get(i).getCantidad()+" CAJAS";
+            unaMatriz[i][4] = "$"+unPedido.getDetallePedido().get(i).getPrecioUnitario();
+            unaMatriz[i][5] = "$"+unPedido.getDetallePedido().get(i).getSubtotal();
+            montoTotal += unPedido.getDetallePedido().get(i).getSubtotal(); 
         }
         tablaDetalle.setModel(new javax.swing.table.DefaultTableModel(
             unaMatriz,            
@@ -286,7 +308,18 @@ public class UIgenerarFactura extends javax.swing.JFrame {
                 "VARIEDAD", "TIPO", "TAMAÑO", "CANTIDAD", "PRECIO", "SUBTOTAL"
             }                
         ));
-    }    
+        this.tfmontototal.setText("$"+String.valueOf(montoTotal));        
+    }  
+    
+    public void navegacionTabla(){
+        puedoCancelar=((!(current.getArrayPedidos()).isEmpty()) && (tabla_clientes.getSelectedRow()!=-1));
+            if(puedoCancelar){
+                int a = tabla_clientes.getSelectedRow();
+                numero=tabla_clientes.getValueAt(a, 0).toString();
+                unPedido=current.getArrayPedidos().get(a);
+                mostrarTablaDetalles(unPedido); 
+            }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btncancelar;

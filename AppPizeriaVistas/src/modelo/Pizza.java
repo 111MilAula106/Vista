@@ -7,12 +7,16 @@ private String tipo;
 private String variedad;
 private String tamanio;
 private int precioUnitario;
+private int subtotal;
+private int cantidad;
 
-    public Pizza(String nombre, String tipo, String variedad, String tamanio) {
+    public Pizza(String nombre, String tipo, String variedad, String tamanio, int cantidad, int precioUnitario) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.variedad = variedad;
         this.tamanio = tamanio;
+        this.cantidad=cantidad;
+        this.precioUnitario=precioUnitario;
     }
 
     public String getNombre() {
@@ -55,7 +59,21 @@ private int precioUnitario;
         this.precioUnitario = precioUnitario;
     }
 
+    public int getCantidad() {
+        return cantidad;
+    }
 
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public int getSubtotal() {
+        return cantidad*precioUnitario;
+    }
+
+    public void setSubtotal(int subtotal) {
+        this.subtotal = subtotal;
+    }
     
     
 }

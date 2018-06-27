@@ -25,7 +25,6 @@ public class Pedido {
     }
     
     public void addPizza(Pizza unaPizza) {
-        //detallePedido.add(new Pizza(unaPizza.getNombre(), unaPizza.getTipo(), unaPizza.getVariedad(), unaPizza.getTamanio()));
         detallePedido.add(unaPizza);
     }
 
@@ -35,7 +34,7 @@ public class Pedido {
     }
 
     public String getFechaEntrega() {
-        fechaEntrega=new SimpleDateFormat("HH:mm");
+        fechaEntrega=new SimpleDateFormat("HH:mm:ss");
         return fechaEntrega.format(fechaHora);
     }
 
@@ -59,7 +58,7 @@ public class Pedido {
         this.miFactura = miFactura;
     }
 
-    public boolean isEstaFacturado() {
+    public boolean getEstaFacturado() {
         return estaFacturado;
     }
 

@@ -1,9 +1,30 @@
 package vista;
 
+import javax.swing.JOptionPane;
+import modelo.GestorPizzeria;
+import modelo.Pedido;
+import modelo.Factura;
+import modelo.Pizza;
+
 public class UIfacturaGenerada extends javax.swing.JFrame {
 
-    public UIfacturaGenerada() {
+    GestorPizzeria unGestor;
+    Pedido unPedido;
+    private boolean puedoImprimir=false;
+    
+    public UIfacturaGenerada(GestorPizzeria unGestor, Pedido unPedido) {
         initComponents();
+        this.unGestor=unGestor;
+        this.unPedido=unPedido;
+        tflisto.setVisible(false);        
+        //CAMPO DE TEXTO: NUMERO DE FACTURA
+        if(unGestor.getArrayFacturas().isEmpty()){
+            this.tfnuemerofactura.setText(String.valueOf(Factura.getNumeroFacturaSig()));
+        }
+        else {
+            int numf = unGestor.getArrayFacturas().get(unGestor.getArrayFacturas().size()-1).getNumeroFactura()+1;
+            this.tfnuemerofactura.setText(String.valueOf(numf));
+        }
     }
 
     /**
@@ -40,6 +61,11 @@ public class UIfacturaGenerada extends javax.swing.JFrame {
         btnimprimir.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_imprimir_on.png"))); // NOI18N
         btnimprimir.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_imprimir_on.png"))); // NOI18N
         btnimprimir.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_imprimir_on.png"))); // NOI18N
+        btnimprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnimprimirActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnimprimir, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 510, -1, -1));
 
         jSeparator2.setForeground(new java.awt.Color(255, 255, 255));
@@ -53,6 +79,11 @@ public class UIfacturaGenerada extends javax.swing.JFrame {
         btncancelar.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_cancelar_on.png"))); // NOI18N
         btncancelar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_cancelar_on.png"))); // NOI18N
         btncancelar.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_cancelar_on.png"))); // NOI18N
+        btncancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btncancelarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btncancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 410, -1, -1));
 
         btnaceptar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_aceptar_off.png"))); // NOI18N
@@ -63,6 +94,11 @@ public class UIfacturaGenerada extends javax.swing.JFrame {
         btnaceptar.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_aceptar_on.png"))); // NOI18N
         btnaceptar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_aceptar_on.png"))); // NOI18N
         btnaceptar.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/btn_aceptar_on.png"))); // NOI18N
+        btnaceptar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnaceptarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnaceptar, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 350, -1, -1));
 
         tflisto.setFont(new java.awt.Font("Antonio", 0, 20)); // NOI18N
@@ -73,7 +109,6 @@ public class UIfacturaGenerada extends javax.swing.JFrame {
         tfnuemerofactura.setFont(new java.awt.Font("Antonio", 0, 30)); // NOI18N
         tfnuemerofactura.setForeground(new java.awt.Color(255, 255, 255));
         tfnuemerofactura.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        tfnuemerofactura.setText("000456123");
         tfnuemerofactura.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         tfnuemerofactura.setOpaque(false);
         getContentPane().add(tfnuemerofactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 255, 260, 45));
@@ -105,6 +140,11 @@ public class UIfacturaGenerada extends javax.swing.JFrame {
         btncerrar.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cerrar_on.png"))); // NOI18N
         btncerrar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cerrar_on.png"))); // NOI18N
         btncerrar.setRolloverSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/img/cerrar_on.png"))); // NOI18N
+        btncerrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btncerrarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btncerrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(455, 22, -1, -1));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/UIfacturaGenerada_bg.jpg"))); // NOI18N
@@ -113,41 +153,94 @@ public class UIfacturaGenerada extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+    //ACEPTAR
+    private void btnaceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnaceptarActionPerformed
+        Factura unaFactura = new Factura();
+        unGestor.addFactura(unaFactura);
+        unaFactura.setUnPedido(unPedido);
+        unPedido.setEstaFacturado(true);
+        unPedido.setMiFactura(unaFactura);
+        this.btnaceptar.setEnabled(false);
+        unGestor.getArrayPedidos().remove(unPedido); 
+        this.tflisto.setVisible(true);
+    }//GEN-LAST:event_btnaceptarActionPerformed
+    //CERRAR
+    private void btncerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncerrarActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btncerrarActionPerformed
+    //CANCELAR
+    private void btncancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncancelarActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btncancelarActionPerformed
+    //IMPRIMIR
+    private void btnimprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnimprimirActionPerformed
+        puedoImprimir=(!this.tfnuemerofactura.getText().equalsIgnoreCase("")) && (!unGestor.getArrayFacturas().isEmpty());
+        if(puedoImprimir){
+            int numf = Integer.parseInt(this.tfnuemerofactura.getText());            
+            for (int i = 0; i < unGestor.getArrayFacturas().size(); i++) {
+                if(numf==unGestor.getArrayFacturas().get(i).getNumeroFactura()){
+                    System.out.println("");
+                    System.out.println("---------------------------------------");
+                    System.out.println("            PIZZAS CORDOBA");
+                    System.out.println("---------------------------------------");
+                    System.out.println("Número de factura: "+unGestor.getArrayFacturas().get(i).getNumeroFactura());
+                    System.out.println("Fecha: "+unGestor.getArrayFacturas().get(i).getFechaFactura());
+                    Pedido otroPedido=unGestor.getArrayFacturas().get(i).getUnPedido();
+                    System.out.println("Nombre cliente: "+otroPedido.getNombreCliente());
+                    System.out.println("Pizzas:");
+                    for(Pizza p: otroPedido.getDetallePedido()){
+                        System.out.println("> "+p.getNombre()+", x"+p.getCantidad()+", $"+p.getSubtotal());
+                    }
+                    int montoTotal=0;
+                    for (int j = 0; j < otroPedido.getDetallePedido().size(); j++) {                            
+                        montoTotal += otroPedido.getDetallePedido().get(j).getSubtotal();                          
+                    }
+                    System.out.println("---------------------------------------");
+                    System.out.println("TOTAL: $"+montoTotal);
+                    System.out.println("---------------------------------------");
+                    System.out.println("      ¡GRACIAS POR SU COMPRA!");
+                    System.out.println("");
+                }
+            }
+        }
+        else JOptionPane.showMessageDialog(null, "No hay facturas registradas o el número ingresado no se encuentra en los registros.", "ERROR", JOptionPane.ERROR_MESSAGE);
+        
+    }//GEN-LAST:event_btnimprimirActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new UIfacturaGenerada().setVisible(true);
-            }
-        });
-    }
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(UIfacturaGenerada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new UIfacturaGenerada().setVisible(true);
+//            }
+//        });
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnaceptar;
